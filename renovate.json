@@ -1,0 +1,27 @@
+{
+  "extends": ["config:recommended"],
+  "enabledManagers": ["nuget"],
+  "schedule": ["at any time"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["every weekend"]
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["nuget"],
+      "fileMatch": ["^Build\\.csproj$", "^PackageBuild\\.csproj$"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "automerge": false,
+      "labels": ["needs-review"]
+    },
+    {
+      "matchManagers": ["nuget"],
+      "fileMatch": ["^Build\\.csproj$", "^PackageBuild\\.csproj$"],
+      "matchUpdateTypes": ["security"],
+      "automerge": false,
+      "labels": ["security"]
+    }
+  ],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0
+}
