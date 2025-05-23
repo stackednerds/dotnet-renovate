@@ -1,6 +1,10 @@
 name: Snyk Auto Scan
 
 on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -30,6 +34,21 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
+      - name: Restore .NET dependencies
+        if: |
+          hashFiles('*.sln', '*.csproj') != ''
+        run: dotnet restore
+
+      - name: Install Node.js dependencies
+        if: |
+          hashFiles('package.json') != ''
+        run: npm install
+
+      - name: Install Python dependencies
+        if: |
+          hashFiles('requirements.txt') != ''
+        run: pip install -r requirements.txt
 
       - name: Install Snyk
         run: npm install -g snyk
