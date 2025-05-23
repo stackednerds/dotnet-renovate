@@ -1,0 +1,70 @@
+name: Snyk Auto Scan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  detect-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (if needed)
+        if: |
+          hashFiles('package.json', 'yarn.lock', 'pnpm-lock.yaml') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Python (if needed)
+        if: |
+          hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile', 'setup.py') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Set up .NET (if needed)
+        if: |
+          hashFiles('*.sln', '*.csproj') != ''
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Snyk
+        run: npm install -g snyk
+
+      - name: Snyk Auth
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Detect project type and run Snyk test
+        id: snyk-scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          set -e
+          OUTPUT_DIR=snyk-results
+          mkdir -p $OUTPUT_DIR
+
+          # Node.js
+          if [ -f "package.json" ]; then
+            snyk test --all-projects --json > $OUTPUT_DIR/snyk-node.json || true
+          fi
+
+          # Python
+          if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "Pipfile" ] || [ -f "setup.py" ]; then
+            snyk test --all-projects --json > $OUTPUT_DIR/snyk-python.json || true
+          fi
+
+          # C#
+          if compgen -G "*.sln" > /dev/null || compgen -G "*.csproj" > /dev/null; then
+            snyk test --all-projects --json > $OUTPUT_DIR/snyk-dotnet.json || true
+          fi
+
+      - name: Upload Snyk scan results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-results
+          path: snyk-results/
