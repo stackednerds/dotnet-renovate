@@ -1,4 +1,4 @@
-name: Snyk NPM Scan
+name: Snyk Node.js Scan
 
 on:
   workflow_dispatch:
@@ -27,12 +27,21 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk auth $SNYK_TOKEN
 
-      - name: Run Snyk test for Node.js projects
+      - name: Run Snyk test for all package.json files
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           mkdir -p snyk-node-results
-          snyk test --all-projects --exclude=venv --json > snyk-node-results/snyk-node.json || true
+          found=0
+          for file in $(find . -name package.json -not -path "*/node_modules/*"); do
+            found=1
+            echo "Scanning $file"
+            snyk test --file="$file" --json > "snyk-node-results/$(basename $(dirname "$file"))-package.snyk.json" || true
+          done
+          if [ $found -eq 0 ]; then
+            echo "No package.json files found!"
+            exit 0
+          fi
 
       - name: Upload Snyk Node.js scan results as artifact
         uses: actions/upload-artifact@v4
