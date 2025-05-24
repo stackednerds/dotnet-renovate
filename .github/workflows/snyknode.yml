@@ -32,7 +32,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           mkdir -p snyk-node-results
-          snyk test --all-projects --detection-depth=3 --exclude=venv --json > snyk-node-results/snyk-node.json || true
+          snyk test --all-projects --exclude=venv --json > snyk-node-results/snyk-node.json || true
 
       - name: Upload Snyk Node.js scan results as artifact
         uses: actions/upload-artifact@v4
