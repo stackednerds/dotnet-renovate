@@ -37,7 +37,7 @@ jobs:
       - name: Install Snyk
         run: npm install -g snyk
 
-      - name: Snyk Auth
+      - name: Authenticate Snyk
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk auth $SNYK_TOKEN
@@ -52,8 +52,13 @@ jobs:
           for file in **/*.sln **/*.csproj; do
             if [[ -f "$file" ]]; then
               found=1
+              dir=$(dirname "$file")
+              base=$(basename "$file")
               echo "Scanning $file"
-              snyk test --file="$file" --json > "snyk-dotnet-results/$(basename "$file").snyk.json" || true
+              (
+                cd "$dir" && \
+                snyk test --file="$base" --json > "../../snyk-dotnet-results/${base}.snyk.json"
+              ) || true
             fi
           done
           if [ $found -eq 0 ]; then
