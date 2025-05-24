@@ -24,7 +24,7 @@ jobs:
           set -e
           shopt -s globstar nullglob
           for sln in **/*.sln; do
-            echo "Restoring solution $sln"
+            echo "Restoring $sln"
             dotnet restore "$sln"
           done
           for csproj in **/*.csproj; do
@@ -42,31 +42,29 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk auth $SNYK_TOKEN
 
-      - name: Run Snyk test for all .sln and .csproj files
+      - name: Run Snyk in project directories with assets
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           mkdir -p snyk-dotnet-results
           shopt -s globstar nullglob
           found=0
-          for file in **/*.sln **/*.csproj; do
-            if [[ -f "$file" ]]; then
-              found=1
-              dir=$(dirname "$file")
-              base=$(basename "$file")
-              echo "Scanning $file"
 
-              tmp_output=$(mktemp)
-              (
-                cd "$dir" && snyk test --file="$base" --json > "$tmp_output"
-              ) || true
+          # Look for directories containing project.assets.json
+          for assets in **/obj/project.assets.json; do
+            dir=$(dirname "$assets")
+            name=$(basename "$dir")
+            echo "Running Snyk in $dir"
+            found=1
 
-              cp "$tmp_output" "snyk-dotnet-results/${base}.snyk.json"
-            fi
+            # Run Snyk test from project directory
+            (
+              cd "$dir" && snyk test --json > "../../snyk-dotnet-results/${name}.snyk.json"
+            ) || true
           done
 
           if [ $found -eq 0 ]; then
-            echo "No .sln or .csproj files found!"
+            echo "No projects with project.assets.json found!"
             exit 0
           fi
 
