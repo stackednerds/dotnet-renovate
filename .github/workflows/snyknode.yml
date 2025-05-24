@@ -1,0 +1,41 @@
+name: Snyk NPM Scan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  snyk-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node.js dependencies
+        run: |
+          find . -name package.json -not -path "*/node_modules/*" -execdir npm install \;
+
+      - name: Install Snyk
+        run: npm install -g snyk
+
+      - name: Snyk Auth
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+
+      - name: Run Snyk test for Node.js projects
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          mkdir -p snyk-node-results
+          snyk test --all-projects --detection-depth=3 --exclude=venv --json > snyk-node-results/snyk-node.json || true
+
+      - name: Upload Snyk Node.js scan results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-node-results
+          path: snyk-node-results/
