@@ -1,23 +1,34 @@
 name: Example workflow for dotNET using Snyk
-on: push
+
+on:
+  workflow_dispatch:
+
 jobs:
   security:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Setup .NET
-        uses: actions/setup-dotnet@4
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '7.x'  # or the version you are using
+
       - name: Restore dependencies
-        run: dotnet restore .
+        run: dotnet restore
+
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/dotnet@master
+        uses: snyk/actions/dotnet@v1
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --json-file-output=snyk.json
-          
+
       - name: Upload Snyk .NET scan results as artifact
         uses: actions/upload-artifact@v4
         with:
-          json_file: snyk.json
+          name: snyk-results
+          path: snyk.json
