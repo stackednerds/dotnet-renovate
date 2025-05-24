@@ -17,7 +17,7 @@ jobs:
           dotnet-version: '7.x'  # or the version you are using
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ./MiniProfiler.sln
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/dotnet@master
