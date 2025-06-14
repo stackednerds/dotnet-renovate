@@ -16,7 +16,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="ServiceStack.Text" Version="8.5.2" />
     <PackageReference Include="Sigil" Version="5.0.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="8.0.1" />
+    <PackageReference Include="System.Reflection.Metadata" Version="9.0.6" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
 
     <ProjectReference Include="..\..\src\MiniProfiler.Shared\MiniProfiler.Shared.csproj" />
