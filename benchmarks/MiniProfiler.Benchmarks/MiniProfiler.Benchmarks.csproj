@@ -14,7 +14,7 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageReference Include="Jil" Version="2.17" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="ServiceStack.Text" Version="8.5.2" />
+    <PackageReference Include="ServiceStack.Text" Version="8.6.0" />
     <PackageReference Include="Sigil" Version="5.0.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="8.0.1" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
