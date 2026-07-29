@@ -20,6 +20,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <PackageReference Include="sqlite" Version="3.13.0" />
+    <PackageReference Include="sqlite" Version="3.53.4" />
   </ItemGroup>
 </Project>
